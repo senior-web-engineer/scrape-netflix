@@ -1,7 +1,8 @@
 #!/usr/bin/env node
 
 const readline = require("readline");
-const scraper = require("./scraper.js");
+const movieScraper = require("./movie-scraper.js");
+const showScraper = require("./show-scraper.js");
 const ObjectsToCsv = require("objects-to-csv");
 
 // const rl = readline.createInterface({
@@ -33,10 +34,10 @@ const ObjectsToCsv = require("objects-to-csv");
 //     });
 // }
 
-let netflixUsername, netflixPassword, netflixProfile;
-let validUsername = false,
-  validPassword = false,
-  validProfile = false;
+// let netflixUsername, netflixPassword, netflixProfile;
+// let validUsername = false,
+//   validPassword = false,
+//   validProfile = false;
 
 (async () => {
   // while (!validUsername) {
@@ -68,16 +69,13 @@ let validUsername = false,
     profile: "Q",
   };
 
-  const results = await scraper.scrape(user);
+  const movieResults = await movieScraper.scrape(user);
+  // const showResults = await showScraper.scrape(user);
 
   console.log("Creating csv file...");
-  const today = new Date();
-  let month = (today.getMonth() + 1).toString();
-  let day = today.getDate().toString();
-  let year = today.getFullYear().toString().substring(2, 4);
-  let strDate = month + day + year;
-  const csvFileName = "netflix-movies-as-of-" + strDate + ".csv";
-  const csv = new ObjectsToCsv(results);
+  const today = Date.now();
+  const csvFileName = "netflix-movies-as-of-" + today + ".csv";
+  const csv = new ObjectsToCsv(movieResults);
   await csv.toDisk("./" + csvFileName);
 
   console.log(
