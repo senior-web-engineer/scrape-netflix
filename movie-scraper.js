@@ -33,15 +33,24 @@ module.exports = {
     // Open login page and login
     console.log("Loading Netflix login page...");
     await page.goto(netflixLoginPage);
-    await page.type("#id_userLoginId", user.username);
-    await page.waitForTimeout(1000);
-    await page.type("#id_password", user.password);
-    await page.waitForTimeout(1000);
-    await page.keyboard.press("Enter");
-    console.log("Logging in to Netflix...");
-    await page.waitForNavigation({ waitUntil: "networkidle2", timeout: 0 });
-
-    await clickUserProfile(page, user);
+    try {
+      await page.type("#id_userLoginId", user.username);
+      await page.waitForTimeout(2000);
+      await page.type("#id_password", user.password);
+      await page.waitForTimeout(2000);
+      await page.keyboard.press("Enter");
+      console.log("Logging in to Netflix...");
+      await page.waitForNavigation({ waitUntil: "networkidle2", timeout: 0 });
+      await clickUserProfile(page, user);
+    } catch (error) {
+      await page.waitForTimeout(2000);
+      await page.type("#id_password", user.password);
+      await page.waitForTimeout(2000);
+      await page.keyboard.press("Enter");
+      console.log("Retrying logging in to Netflix...");
+      await page.waitForNavigation({ waitUntil: "networkidle2", timeout: 0 });
+      await clickUserProfile(page, user);
+    }
 
     await page.goto(netflixMoviesPage, {
       waitUntil: "networkidle2",
@@ -69,7 +78,7 @@ module.exports = {
 
       return codes;
     });
-    let index = 0;
+
     for (let c of codes) {
       try {
         console.log("Loading genre: " + c.name + " - " + c.code);
@@ -96,18 +105,86 @@ module.exports = {
         console.log(e, "error on loading genre");
         continue;
       }
-      // for test
-      index += 1;
-      if (index > 2) break;
     }
 
-    console.log("Completed scraping Netflix movies.");
+    console.log("Completed scraping Netflix movie titles.");
+
+    for (let result of results) {
+      try {
+        console.log("Loading detail: " + result.title + " - " + result.NFID);
+        await page.goto(netflixDetailPageUrl + result.NFID, {
+          waitUntil: "networkidle2",
+          timeout: 0,
+        });
+        let profileSelectionRequired = await page.evaluate(() => {
+          let profileDiv = document.querySelector(".list-profiles");
+          if (profileDiv === null) {
+            return false;
+          } else {
+            return true;
+          }
+        });
+
+        if (profileSelectionRequired) {
+          console.log("User profile needed...");
+          await clickUserProfile(page, user);
+        }
+
+        let detail = await scrapeMovieDetails(page, extractItemDetails);
+        result.year = detail.year;
+        result.rating = detail.rating;
+        result.duration = detail.duration;
+        result.description = detail.description;
+        result.cast = detail.cast;
+        result.genres = detail.genres;
+        result.atributes = detail.atributes;
+      } catch (e) {
+        console.log(e, "error on loading detail");
+        continue;
+      }
+    }
 
     browser.close();
 
     return results;
   },
 };
+
+function extractItemDetails() {
+  const year = document.querySelector("div.year");
+  const rating = document.querySelectorAll("span.maturity-rating")[1];
+  const duration = document.querySelector("span.duration");
+  const description = document.querySelector("p.previewModal--text");
+  const cast = document.querySelector(
+    ".about-container>div.previewModal--tags:nth-child(2)"
+  );
+  const genres = document.querySelector(
+    ".about-container>div.previewModal--tags:nth-child(4)"
+  );
+  const atributes = document.querySelector(
+    ".about-container>div.previewModal--tags:nth-child(5)"
+  );
+
+  let item = {
+    year: year ? year.innerText : "NA",
+    rating: rating ? rating.innerText : "NA",
+    duration: duration ? duration.innerText : "NA",
+    description: description ? description.innerText : "NA",
+    cast: cast ? cast.innerText.split(":")[1] : "NA",
+    genres: genres ? genres.innerText.split(":")[1] : "NA",
+    atributes: atributes ? atributes.innerText.split(":")[1] : "NA",
+  };
+
+  return item;
+}
+
+async function scrapeMovieDetails(page, extractItemDetails) {
+  console.log("Scraping detail page.");
+
+  let detail = await page.evaluate(extractItemDetails);
+
+  return detail;
+}
 
 function extractItems() {
   const extractedPElements = document.querySelectorAll("p.fallback-text");
@@ -119,6 +196,7 @@ function extractItems() {
   let item = {};
   extractedPElements.forEach(function (element, i) {
     item = {
+      type: "movie",
       title: element.innerText,
       img: extractedImgElements[i].getAttribute("src"),
       url: extractedAElements[i].getAttribute("href"),
@@ -162,6 +240,7 @@ async function scrapeMovies(
   for (let i = 0; i < movies.length; i++) {
     if (!movieExists(results, movies[i].NFID)) {
       let movie = new Object();
+      movie.type = movies[i].type;
       movie.title = movies[i].title;
       movie.img = movies[i].img;
       movie.url = movies[i].url;
