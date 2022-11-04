@@ -1,0 +1,61 @@
+[{
+    "name": "Action",
+    "code": "10673"
+}, {
+    "name": "Anime",
+    "code": "6721"
+}, {
+    "name": "British",
+    "code": "52117"
+}, {
+    "name": "Comedies",
+    "code": "10375"
+}, {
+    "name": "Crime",
+    "code": "26146"
+}, {
+    "name": "Docuseries",
+    "code": "10105"
+}, {
+    "name": "Dramas",
+    "code": "11714"
+}, {
+    "name": "European",
+    "code": "89663"
+}, {
+    "name": "German",
+    "code": "65198"
+}, {
+    "name": "Horror",
+    "code": "83059"
+}, {
+    "name": "International",
+    "code": "1195213"
+}, {
+    "name": "Kids",
+    "code": "27346"
+}, {
+    "name": "Mysteries",
+    "code": "4366"
+}, {
+    "name": "Reality & Talk",
+    "code": "2070390"
+}, {
+    "name": "Romance",
+    "code": "26156"
+}, {
+    "name": "Sci-Fi & Fantasy",
+    "code": "1372"
+}, {
+    "name": "Science & Nature",
+    "code": "52780"
+}, {
+    "name": "Teen",
+    "code": "60951"
+}, {
+    "name": "Thriller",
+    "code": "89811"
+}, {
+    "name": "US",
+    "code": "72404"
+}]

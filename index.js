@@ -2,7 +2,7 @@
 
 const movieScraper = require("./movie-scraper.js");
 const showScraper = require("./show-scraper.js");
-const ObjectsToCsv = require("objects-to-csv");
+const customScraper = require("./custom-scraper.js");
 const mysql = require("mysql");
 
 var pool = mysql.createPool({
@@ -18,21 +18,18 @@ var pool = mysql.createPool({
     password: "pu200000",
     profile: "Q",
   };
-
-  const movieResults = await movieScraper.scrape(user);
-  const showResults = await showScraper.scrape(user);
-
-  //   console.log("Creating csv file...");
-  //   const today = Date.now();
-  //   const csvFileName = "netflix-movies-as-of-" + today + ".csv";
-  //   const csv = new ObjectsToCsv(showResults);
-  //   await csv.toDisk("./" + csvFileName);
-
-  //   console.log(
-  //     "A CSV file named " +
-  //       csvFileName +
-  //       " with all movie information has been created in this project's folder."
-  //   );
+  let args = process.argv.slice(2);
+  let results = [];
+  if (args[0] == "custom") {
+    results = await customScraper.scrape(user);
+  } else if (args[0] == "movie") {
+    results = await movieScraper.scrape(user);
+  } else if (args[0] == "show") {
+    results = await showScraper.scrape(user);
+  } else {
+    results = [];
+    throw Error("Incorrect Arg");
+  }
 
   console.log("Updating data to mysql...");
 
@@ -45,7 +42,8 @@ var pool = mysql.createPool({
         }
       }
     );
-    showResults.forEach((re) => {
+
+    results.forEach((re) => {
       // Use the connection
       var query = connection.query(
         "INSERT INTO netflix SET ? ON DUPLICATE KEY UPDATE title = VALUES(title), year = VALUES(year),duration = VALUES(duration), description = VALUES(description), cast = VALUES(cast), genres = VALUES(genres),rating = VALUES(rating),atributes = VALUES(atributes), status=1",
@@ -57,18 +55,7 @@ var pool = mysql.createPool({
         }
       );
     });
-    movieResults.forEach((re) => {
-      // Use the connection
-      var query = connection.query(
-        "INSERT INTO netflix SET ? ON DUPLICATE KEY UPDATE title = VALUES(title), year = VALUES(year),duration = VALUES(duration), description = VALUES(description), cast = VALUES(cast), genres = VALUES(genres),rating = VALUES(rating),atributes = VALUES(atributes), status=1",
-        re,
-        function (error, results, fields) {
-          if (error) {
-            console.log(error, "error on inserting to db");
-          }
-        }
-      );
-    });
+
     // And done with the connection.
     connection.release();
     pool.end(function (err) {

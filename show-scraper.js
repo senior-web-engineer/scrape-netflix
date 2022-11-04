@@ -72,7 +72,7 @@ module.exports = {
 
       return codes;
     });
-    let index = 0;
+
     for (let c of codes) {
       try {
         console.log("Loading genre: " + c.name + " - " + c.code);
@@ -99,9 +99,6 @@ module.exports = {
         console.log(e, "error on loading genre");
         continue;
       }
-      // for test
-      // index += 1;
-      // if (index > 0) break;
     }
 
     console.log("Completed scraping Netflix show titles.");

@@ -3,15 +3,12 @@ const puppeteer = require("puppeteer");
 const netflixMoviesBaseUrl = "https://www.netflix.com/browse/genre/";
 const netflixMoviesExtraParams = "?so=az";
 const netflixLoginPage = "https://www.netflix.com/login";
-const netflixMoviesPage = "https://www.netflix.com/browse/genre/34399";
 const netflixDetailPageUrl = "https://www.netflix.com/title/";
-
+const codes = require("./miscellaneous/codes-custom.json");
 let results = [];
 
 module.exports = {
   scrape: async function scrape(user) {
-    // user.apiKey = await getApiKey.getApiKey();
-
     console.log("Starting scrape...");
     console.log("Launching headless browser...");
     const browser = await puppeteer.launch({ headless: true });
@@ -48,33 +45,6 @@ module.exports = {
       await clickUserProfile(page, user);
     }
 
-    await page.goto(netflixMoviesPage, {
-      waitUntil: "networkidle2",
-      timeout: 0,
-    });
-
-    // Click the 'Genres' drop-down menu
-    await page.click('div[label="Genres"] > div');
-    console.log("Loading movie genres...");
-
-    const codes = await page.evaluate(() => {
-      let anchors = document.querySelectorAll(
-        'div[label="Genres"] > div + div li > a'
-      );
-      let codes = [];
-
-      for (let a of anchors) {
-        let genre = {
-          name: a.innerText,
-          code: a.pathname.substr(a.pathname.lastIndexOf("/") + 1),
-        };
-
-        codes.push(genre);
-      }
-
-      return codes;
-    });
-
     for (let c of codes) {
       try {
         console.log("Loading genre: " + c.name + " - " + c.code);
@@ -103,7 +73,7 @@ module.exports = {
       }
     }
 
-    console.log("Completed scraping Netflix movie titles.");
+    console.log("Completed scraping Netflix show titles.");
 
     for (let result of results) {
       try {
@@ -134,6 +104,7 @@ module.exports = {
         result.cast = detail.cast;
         result.genres = detail.genres;
         result.atributes = detail.atributes;
+        result.type = detail.type;
       } catch (e) {
         console.log(e, "error on loading detail");
         continue;
@@ -146,60 +117,12 @@ module.exports = {
   },
 };
 
-function extractItemDetails() {
-  const year = document.querySelector("div.year");
-  const rating = document.querySelectorAll("span.maturity-rating")[1];
-  const duration = document.querySelector("span.duration");
-  const description = document.querySelector("p.previewModal--text");
-  const cast = document.querySelector(
-    ".about-container>div.previewModal--tags:nth-child(2)"
-  );
-  const genres = document.querySelector(
-    ".about-container>div.previewModal--tags:nth-child(4)"
-  );
-  const atributes = document.querySelector(
-    ".about-container>div.previewModal--tags:nth-child(5)"
-  );
-
-  let item = {
-    year: year ? year.innerText : "NA",
-    rating: rating ? rating.innerText : "NA",
-    duration: duration ? duration.innerText : "NA",
-    description: description ? description.innerText : "NA",
-    cast: cast ? cast.innerText.split(":")[1] : "NA",
-    genres: genres ? genres.innerText.split(":")[1] : "NA",
-    atributes: atributes ? atributes.innerText.split(":")[1] : "NA",
-  };
-
-  return item;
-}
-
 async function scrapeMovieDetails(page, extractItemDetails) {
   console.log("Scraping detail page.");
 
   let detail = await page.evaluate(extractItemDetails);
 
   return detail;
-}
-
-function extractItems() {
-  const extractedPElements = document.querySelectorAll("p.fallback-text");
-  const extractedAElements = document.querySelectorAll("a.slider-refocus");
-  const extractedImgElements = document.querySelectorAll(
-    "img.boxart-image-in-padded-container"
-  );
-  const items = [];
-  let item = {};
-  extractedPElements.forEach(function (element, i) {
-    item = {
-      type: "movie",
-      title: element.innerText,
-      img: extractedImgElements[i].getAttribute("src"),
-      url: extractedAElements[i].getAttribute("href"),
-    };
-    items.push(item);
-  });
-  return items;
 }
 
 async function scrapeMovies(
@@ -215,7 +138,7 @@ async function scrapeMovies(
   try {
     let previousHeight;
     while (movies.length < 1000000000000) {
-      console.log("length of movies: ", movies.length);
+      console.log("length of shows: ", movies.length);
       movies = await page.evaluate(extractItems);
       previousHeight = await page.evaluate("document.body.scrollHeight");
       await page.evaluate("window.scrollTo(0, document.body.scrollHeight)");
@@ -230,13 +153,12 @@ async function scrapeMovies(
   }
 
   if (movies.length === 0) {
-    console.log("No movies in this category.");
+    console.log("No shows in this category.");
   }
 
   for (let i = 0; i < movies.length; i++) {
     if (!movieExists(results, movies[i].NFID)) {
       let movie = new Object();
-      movie.type = movies[i].type;
       movie.title = movies[i].title;
       movie.img = movies[i].img;
       movie.url = movies[i].url;
@@ -287,4 +209,56 @@ async function clickUserProfile(page, user) {
   );
   console.log("Loading user profile...");
   await page.waitForNavigation({ waitUntil: "networkidle2", timeout: 0 });
+}
+
+function extractItems() {
+  const extractedPElements = document.querySelectorAll("p.fallback-text");
+  const extractedAElements = document.querySelectorAll("a.slider-refocus");
+  const extractedImgElements = document.querySelectorAll(
+    "img.boxart-image-in-padded-container"
+  );
+  const items = [];
+  let item = {};
+  extractedPElements.forEach(function (element, i) {
+    item = {
+      title: element.innerText,
+      img: extractedImgElements[i].getAttribute("src"),
+      url: extractedAElements[i].getAttribute("href"),
+    };
+    items.push(item);
+  });
+  return items;
+}
+
+function extractItemDetails() {
+  const year = document.querySelector("div.year");
+  const rating = document.querySelectorAll("span.maturity-rating")[1];
+  const duration = document.querySelector("span.duration");
+  const description = document.querySelector("p.previewModal--text");
+  const len = document.querySelectorAll(
+    ".about-container>div.previewModal--tags"
+  ).length;
+
+  const cast = document.querySelector(
+    ".about-container>div.previewModal--tags:nth-child(2)"
+  );
+  const genres = document.querySelector(
+    ".about-container>div.previewModal--tags:nth-child(" + (len - 1) + ")"
+  );
+  const atributes = document.querySelector(
+    ".about-container>div.previewModal--tags:nth-child(" + len + ")"
+  );
+
+  let item = {
+    year: year ? year.innerText : "NA",
+    rating: rating ? rating.innerText : "NA",
+    duration: duration ? duration.innerText : "NA",
+    description: description ? description.innerText : "NA",
+    cast: cast ? cast.innerText.split(":")[1] : "NA",
+    genres: genres ? genres.innerText.split(":")[1] : "NA",
+    atributes: atributes ? atributes.innerText.split(":")[1] : "NA",
+    type: len == 5 ? "movie" : "show",
+  };
+
+  return item;
 }
