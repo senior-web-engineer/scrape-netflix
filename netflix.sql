@@ -11,7 +11,7 @@
  Target Server Version : 100334
  File Encoding         : 65001
 
- Date: 02/11/2022 18:42:02
+ Date: 07/11/2022 17:45:25
 */
 
 SET NAMES utf8mb4;
@@ -36,6 +36,20 @@ CREATE TABLE `netflix` (
   `timestamp` timestamp(6) NOT NULL DEFAULT current_timestamp(6) ON UPDATE current_timestamp(6),
   `img` text DEFAULT NULL,
   `url` text DEFAULT NULL,
+  `name_cat` varchar(255) DEFAULT NULL,
+  `code_cat` varchar(255) DEFAULT NULL,
+  `imdbRating` varchar(255) DEFAULT NULL,
+  `imdbVotes` varchar(255) DEFAULT NULL,
+  `tomatometer` varchar(255) DEFAULT NULL,
+  `rated` varchar(255) DEFAULT NULL,
+  `director` varchar(255) DEFAULT NULL,
+  `writer` varchar(255) DEFAULT NULL,
+  `plot` varchar(255) DEFAULT NULL,
+  `imdbID` varchar(255) DEFAULT NULL,
+  `awards` varchar(255) DEFAULT NULL,
+  `poster` text DEFAULT NULL,
+  `metascore` varchar(255) DEFAULT NULL,
+  `ytID` text DEFAULT NULL,
   PRIMARY KEY (`NFID`) USING BTREE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 

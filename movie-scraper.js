@@ -1,10 +1,18 @@
 const puppeteer = require("puppeteer");
-
+const request = require("request-promise");
+const getApiKey = require("./get-api-key.js");
+const {
+  extractItemDetails,
+  extractItems,
+  apiKey,
+  extractOMDBItem,
+} = require("./utils.js");
 const netflixMoviesBaseUrl = "https://www.netflix.com/browse/genre/";
 const netflixMoviesExtraParams = "?so=az";
 const netflixLoginPage = "https://www.netflix.com/login";
 const netflixMoviesPage = "https://www.netflix.com/browse/genre/34399";
 const netflixDetailPageUrl = "https://www.netflix.com/title/";
+const omdbApiBaseUrl = "http://www.omdbapi.com/";
 
 let results = [];
 
@@ -96,14 +104,12 @@ module.exports = {
           await clickUserProfile(page, user);
         }
 
-        results = await scrapeMovies(page, extractItems, results, user);
+        results = await scrapeMovies(page, extractItems, results, user, c);
       } catch (e) {
         console.log(e, "error on loading genre");
         continue;
       }
     }
-
-    console.log("Completed scraping Netflix movie titles.");
 
     for (let result of results) {
       try {
@@ -146,34 +152,6 @@ module.exports = {
   },
 };
 
-function extractItemDetails() {
-  const year = document.querySelector("div.year");
-  const rating = document.querySelectorAll("span.maturity-rating")[1];
-  const duration = document.querySelector("span.duration");
-  const description = document.querySelector("p.previewModal--text");
-  const cast = document.querySelector(
-    ".about-container>div.previewModal--tags:nth-child(2)"
-  );
-  const genres = document.querySelector(
-    ".about-container>div.previewModal--tags:nth-child(4)"
-  );
-  const atributes = document.querySelector(
-    ".about-container>div.previewModal--tags:nth-child(5)"
-  );
-
-  let item = {
-    year: year ? year.innerText : "NA",
-    rating: rating ? rating.innerText : "NA",
-    duration: duration ? duration.innerText : "NA",
-    description: description ? description.innerText : "NA",
-    cast: cast ? cast.innerText.split(":")[1] : "NA",
-    genres: genres ? genres.innerText.split(":")[1] : "NA",
-    atributes: atributes ? atributes.innerText.split(":")[1] : "NA",
-  };
-
-  return item;
-}
-
 async function scrapeMovieDetails(page, extractItemDetails) {
   console.log("Scraping detail page.");
 
@@ -182,31 +160,12 @@ async function scrapeMovieDetails(page, extractItemDetails) {
   return detail;
 }
 
-function extractItems() {
-  const extractedPElements = document.querySelectorAll("p.fallback-text");
-  const extractedAElements = document.querySelectorAll("a.slider-refocus");
-  const extractedImgElements = document.querySelectorAll(
-    "img.boxart-image-in-padded-container"
-  );
-  const items = [];
-  let item = {};
-  extractedPElements.forEach(function (element, i) {
-    item = {
-      type: "movie",
-      title: element.innerText,
-      img: extractedImgElements[i].getAttribute("src"),
-      url: extractedAElements[i].getAttribute("href"),
-    };
-    items.push(item);
-  });
-  return items;
-}
-
 async function scrapeMovies(
   page,
   extractItems,
   results,
   user,
+  c,
   scrollDelay = 1000
 ) {
   console.log("Scraping page.");
@@ -235,23 +194,12 @@ async function scrapeMovies(
 
   for (let i = 0; i < movies.length; i++) {
     if (!movieExists(results, movies[i].NFID)) {
-      let movie = new Object();
-      movie.type = movies[i].type;
-      movie.title = movies[i].title;
-      movie.img = movies[i].img;
-      movie.url = movies[i].url;
-      movie.NFID = extractID(movies[i].url);
+      let movie = await extractOMDBItem(movies[i], c);
       results.push(movie);
     }
   }
 
   return results;
-}
-
-function extractID(urlString) {
-  let matches;
-  matches = urlString.match(/\d+/g);
-  return matches[0];
 }
 
 function movieExists(arrOfMovieObjects, movieNFID) {

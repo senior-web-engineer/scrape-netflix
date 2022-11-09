@@ -3,21 +3,12 @@
 const movieScraper = require("./movie-scraper.js");
 const showScraper = require("./show-scraper.js");
 const customScraper = require("./custom-scraper.js");
+const { dbConfig, user } = require("./utils.js");
 const mysql = require("mysql");
 
-var pool = mysql.createPool({
-  host: "localhost",
-  user: "root",
-  password: "root",
-  database: "netflix",
-});
+var pool = mysql.createPool(dbConfig);
 
 (async () => {
-  let user = {
-    username: "nkajs2001@hotmail.com",
-    password: "pu200000",
-    profile: "Q",
-  };
   let args = process.argv.slice(2);
   let results = [];
   if (args[0] == "custom") {
@@ -46,7 +37,11 @@ var pool = mysql.createPool({
     results.forEach((re) => {
       // Use the connection
       var query = connection.query(
-        "INSERT INTO netflix SET ? ON DUPLICATE KEY UPDATE title = VALUES(title), year = VALUES(year),duration = VALUES(duration), description = VALUES(description), cast = VALUES(cast), genres = VALUES(genres),rating = VALUES(rating),atributes = VALUES(atributes), status=1",
+        `INSERT INTO netflix SET ? ON DUPLICATE KEY UPDATE title = VALUES(title), year = VALUES(year),duration = VALUES(duration), 
+        description = VALUES(description), cast = VALUES(cast), genres = VALUES(genres),rating = VALUES(rating),atributes = VALUES(atributes), 
+        name_cat=VALUES(name_cat), code_cat=VALUES(code_cat),imdbRating=VALUES(imdbRating),imdbVotes=VALUES(imdbVotes),tomatometer=VALUES(tomatometer),status=1,
+        rated=VALUES(rated), director=VALUES(director),writer=VALUES(writer),plot=VALUES(plot),awards=VALUES(awards),
+        poster=VALUES(poster), metascore=VALUES(metascore),imdbID=VALUES(imdbID),ytID=VALUES(ytID)`,
         re,
         function (error, results, fields) {
           if (error) {
