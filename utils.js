@@ -1,6 +1,7 @@
 const request = require("request-promise");
 const omdbApiBaseUrl = "http://www.omdbapi.com/";
-const googleYTAPIUrl = "https://www.googleapis.com/youtube/v3/search?part=snippet&maxResults=1&key=AIzaSyA8NIAQEFhGj0na9W3-gjH6I3JGe4bjfnI";
+const googleYTAPIUrl =
+  "https://www.googleapis.com/youtube/v3/search?part=snippet&maxResults=1&key=AIzaSyA8NIAQEFhGj0na9W3-gjH6I3JGe4bjfnI";
 
 function extractItemDetails() {
   const year = document.querySelector("div.year");
@@ -29,7 +30,6 @@ function extractItemDetails() {
     cast: cast ? cast.innerText.split(":")[1] : "NA",
     genres: genres ? genres.innerText.split(":")[1] : "NA",
     atributes: atributes ? atributes.innerText.split(":")[1] : "NA",
-    type: len == 5 ? "movie" : "show",
   };
 
   return item;
@@ -42,12 +42,14 @@ function extractItems() {
     "img.boxart-image-in-padded-container"
   );
   const items = [];
-  let item = {};
+
   extractedPElements.forEach(function (element, i) {
-    item = {
+    let url = extractedAElements[i].getAttribute("href");
+    let item = {
       title: element.innerText,
       img: extractedImgElements[i].getAttribute("src"),
-      url: extractedAElements[i].getAttribute("href"),
+      url: url,
+      NFID: url.match(/\d+/g)[0],
     };
     items.push(item);
   });
@@ -64,9 +66,7 @@ async function extractYTUrl(title) {
     json: true,
   };
 
-  console.log(
-    "Requesting information about " + title + " from google API..."
-  );
+  console.log("Requesting information about " + title + " from google API...");
 
   let resultJSON;
   let videoId;
@@ -84,37 +84,32 @@ async function extractYTUrl(title) {
   ) {
     console.log("Response from google API passes checks.");
     videoId = resultJSON.items[0].id.videoId;
-  } 
-  else {
+  } else {
     console.log("Response from google API fails checks.");
     videoId = "N/A";
   }
-  console.log(videoId)
+  console.log(videoId);
   return videoId;
 }
 
-async function extractOMDBItem(movies, c) {
+async function extractOMDBItem(movies) {
   let movie = new Object();
-  movie.title = movies.title;
-  movie.img = movies.img;
-  movie.url = movies.url;
-  movie.NFID = extractID(movies.url);
-  movie.name_cat = c.name;
-  movie.code_cat = c.code;
 
   const requestOptions = {
     method: "GET",
     url: omdbApiBaseUrl,
     qs: {
-      t: movie.title,
+      t: movies.title,
       plot: "full",
+      year: movies.year,
+      type: movies.type,
       apiKey: apiKey,
     },
     json: true,
   };
 
   console.log(
-    "Requesting information about " + movie.title + " from Omdb API..."
+    "Requesting information about " + movies.title + " from Omdb API..."
   );
 
   let resultJSON;
@@ -215,7 +210,7 @@ async function extractOMDBItem(movies, c) {
     );
   }
 
-  let ytID = await extractYTUrl(movie.title);
+  let ytID = await extractYTUrl(movies.title);
   movie.ytID = ytID;
 
   return movie;

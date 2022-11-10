@@ -1,7 +1,7 @@
 /*
  Navicat Premium Data Transfer
 
- Source Server         : root
+ Source Server         : geamennfood
  Source Server Type    : MySQL
  Source Server Version : 100334
  Source Host           : 127.0.0.1:3306
@@ -11,7 +11,7 @@
  Target Server Version : 100334
  File Encoding         : 65001
 
- Date: 07/11/2022 17:45:25
+ Date: 09/11/2022 14:53:51
 */
 
 SET NAMES utf8mb4;
@@ -43,10 +43,10 @@ CREATE TABLE `netflix` (
   `tomatometer` varchar(255) DEFAULT NULL,
   `rated` varchar(255) DEFAULT NULL,
   `director` varchar(255) DEFAULT NULL,
-  `writer` varchar(255) DEFAULT NULL,
-  `plot` varchar(255) DEFAULT NULL,
+  `writer` text DEFAULT NULL,
+  `plot` text DEFAULT NULL,
   `imdbID` varchar(255) DEFAULT NULL,
-  `awards` varchar(255) DEFAULT NULL,
+  `awards` text DEFAULT NULL,
   `poster` text DEFAULT NULL,
   `metascore` varchar(255) DEFAULT NULL,
   `ytID` text DEFAULT NULL,

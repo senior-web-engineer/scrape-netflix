@@ -1,61 +1,81 @@
 [{
+    "type": "series",
     "name": "Action",
     "code": "10673"
 }, {
+    "type": "series",
     "name": "Anime",
     "code": "6721"
 }, {
+    "type": "series",
     "name": "British",
     "code": "52117"
 }, {
+    "type": "series",
     "name": "Comedies",
     "code": "10375"
 }, {
+    "type": "series",
     "name": "Crime",
     "code": "26146"
 }, {
+    "type": "series",
     "name": "Docuseries",
     "code": "10105"
 }, {
+    "type": "series",
     "name": "Dramas",
     "code": "11714"
 }, {
+    "type": "series",
     "name": "European",
     "code": "89663"
 }, {
+    "type": "series",
     "name": "German",
     "code": "65198"
 }, {
+    "type": "series",
     "name": "Horror",
     "code": "83059"
 }, {
+    "type": "series",
     "name": "International",
     "code": "1195213"
 }, {
+    "type": "series",
     "name": "Kids",
     "code": "27346"
 }, {
+    "type": "series",
     "name": "Mysteries",
     "code": "4366"
 }, {
+    "type": "series",
     "name": "Reality & Talk",
     "code": "2070390"
 }, {
+    "type": "series",
     "name": "Romance",
     "code": "26156"
 }, {
+    "type": "series",
     "name": "Sci-Fi & Fantasy",
     "code": "1372"
 }, {
+    "type": "series",
     "name": "Science & Nature",
     "code": "52780"
 }, {
+    "type": "series",
     "name": "Teen",
     "code": "60951"
 }, {
+    "type": "series",
     "name": "Thriller",
     "code": "89811"
 }, {
+    "type": "series",
     "name": "US",
     "code": "72404"
 }]

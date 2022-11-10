@@ -1,6 +1,4 @@
 const puppeteer = require("puppeteer");
-const request = require("request-promise");
-const getApiKey = require("./get-api-key.js");
 const {
   extractItemDetails,
   extractItems,
@@ -140,6 +138,21 @@ module.exports = {
         result.cast = detail.cast;
         result.genres = detail.genres;
         result.atributes = detail.atributes;
+
+        let movie = extractOMDBItem(result);
+        result.imdbRating = movie.imdbRating;
+        result.imdbVotes = movie.imdbVotes;
+        result.tomatometer = movie.tomatometer;
+        result.rated = movie.rated;
+        result.director = movie.director;
+        result.writer = movie.writer;
+        result.plot = movie.plot;
+        result.imdbID = movie.imdbID;
+        result.awards = movie.awards;
+        result.poster = movie.poster;
+        result.metascore = movie.metascore;
+        result.ytID = movie.ytID;
+        console.log(result, "Loading detail done");
       } catch (e) {
         console.log(e, "error on loading detail");
         continue;
@@ -194,7 +207,11 @@ async function scrapeMovies(
 
   for (let i = 0; i < movies.length; i++) {
     if (!movieExists(results, movies[i].NFID)) {
-      let movie = await extractOMDBItem(movies[i], c);
+      // let movie = await extractOMDBItem(movies[i], c);
+      let movie = movies[i];
+      movie.name_cat = c.name;
+      movie.code_cat = c.code;
+      movie.type = c.type;
       results.push(movie);
     }
   }

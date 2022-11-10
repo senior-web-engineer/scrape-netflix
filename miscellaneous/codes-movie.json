@@ -1,92 +1,115 @@
 [{
+        "type": "movie",
         "name": "Action",
         "code": "801362"
     },
     {
+        "type": "movie",
         "name": "Adventures",
         "code": "7442"
     },
     {
+        "type": "movie",
         "name": "Anime",
         "code": "3063"
     },
     {
+        "type": "movie",
         "name": "Award-Winning",
         "code": "89844"
     },
     {
+        "type": "movie",
         "name": "Blockbusters",
         "code": "90139"
     },
     {
+        "type": "movie",
         "name": "Children & Family",
         "code": "783"
     },
     {
+        "type": "movie",
         "name": "Comedies",
         "code": "6548"
     },
     {
+        "type": "movie",
         "name": "Crime",
         "code": "5824"
     },
     {
+        "type": "movie",
         "name": "Documentaries",
         "code": "2243108"
     },
     {
+        "type": "movie",
         "name": "Dramas",
         "code": "5763"
     },
     {
+        "type": "movie",
         "name": "European",
         "code": "89708"
     },
     {
+        "type": "movie",
         "name": "Fantasy",
         "code": "9744"
     },
     {
+        "type": "movie",
         "name": "German",
         "code": "58886"
     },
     {
+        "type": "movie",
         "name": "Horror",
         "code": "8711"
     },
     {
+        "type": "movie",
         "name": "Independent",
         "code": "7077"
     },
     {
+        "type": "movie",
         "name": "International",
         "code": "78367"
     },
     {
+        "type": "movie",
         "name": "Music & Musicals",
         "code": "52852"
     },
     {
+        "type": "movie",
         "name": "Romance",
         "code": "8883"
     },
     {
+        "type": "movie",
         "name": "Sci-Fi",
         "code": "3276033"
     },
     {
+        "type": "movie",
         "name": "Shorts",
         "code": "3345391"
     },
     {
+        "type": "movie",
         "name": "Sports",
         "code": "4370"
     },
     {
+        "type": "movie",
         "name": "Stand-Up Comedy",
         "code": "11559"
     },
     {
+        "type": "movie",
         "name": "Thriller",
         "code": "8933"
     }
