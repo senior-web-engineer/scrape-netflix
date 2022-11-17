@@ -18,7 +18,7 @@ module.exports = {
   scrape: async function scrape(user) {
     console.log("Starting scrape...");
     console.log("Launching headless browser...");
-    const browser = await puppeteer.launch({ headless: true });
+    const browser = await puppeteer.launch({ headless: false });
     let page = await browser.newPage();
 
     await page.setViewport({ width: 1280, height: 800 });

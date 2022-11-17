@@ -210,8 +210,9 @@ async function extractOMDBItem(movies) {
     );
   }
 
-  let ytID = await extractYTUrl(movies.title);
-  movie.ytID = ytID;
+  // let ytID = await extractYTUrl(movies.title);
+  // movie.ytID = ytID;
+  movie.ytID = "";
 
   return movie;
 }
